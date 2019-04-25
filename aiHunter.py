@@ -48,11 +48,11 @@ def main(R1fastq, R2fastq, infofile, inserts,outdir, cushion, sig_threshold):
 	# Call AIH
 	print ("##################################################"+"\n"+"CALLING AMPLICON INDEL HUNTER"+"\n")
 	amplicon_indel_hunter.main(R1fastq, R2fastq, infofile, outdir, cushion,sig_threshold)
-	raw_input("AID DONE")
+	raw_input("AIH DONE")
 	# Call AID
 	print ("##################################################"+"\n"+"CALLING AMPLICON INDEL DIAGNOSER"+"\n")
 	amplicon_indel_diagnoser.main(R1fastq, R2fastq, infofile, outdir, cushion, inserts,outdir+"/"+os.path.basename(R1fastq)+".R2fastq.indelcalls.significant.txt")
-
+	raw_input("AID DONE")
 	# Make VCF file of final output
 	print ("##################################################"+"\n"+"CONVERT AID OUTPUT TO VCF"+"\n")
 	convert_aid_to_vcf.main(outdir+"/"+os.path.basename(R1fastq)+".R2fastq.finalindelstats",outdir+"/"+os.path.basename(R1fastq)+".R2fastq.finalindelstats.vcf")

@@ -115,7 +115,6 @@ def main(R1fastq, R2fastq, infofile, outdir, cushion, sig_threshold):
     outputfile.write("Amplicon\tReads_w_indel>" + str(cushion) + "bp\t#readpairspassingfilter\t%indel\n")
     results_num=0
     for k,v in amplicon_indel_data.iteritems():
-        print "\t".join([k, v])
         pairs_with_indel = v.split(":")[0]
         pairs_passing_filter = v.split(":")[1]
         #Each pair represents 2 reads, so depths and pos counts need to be doubled
@@ -128,6 +127,8 @@ def main(R1fastq, R2fastq, infofile, outdir, cushion, sig_threshold):
                 results_num+=1
         except:
             indelpercent="N/A"
+
+        print "\t".join([k, v, indelpercent])
         
         outputfile.write(k + '\t' + str(reads_withindel) + '\t' + str(depth_okqual) + '\t' + indelpercent + '\n')
 
@@ -161,9 +162,9 @@ def searchforamplicon(read1, read2, ampliconinfo):
 # This function hybridizes the overlapping region of one read mate with the other mate
 # It allows for an cushion region. 
 # Returns:
-# 0:0 - No hybridization
-# 0:1
-# 1:1
+# 0:0 - Diff length reads
+# 0:1 - Hybridisation
+# 1:1 - No hybridisation within cushion range
 def hybridize(read1, read2, read1q, read2q,  ampliconData, cushion):
     allowedMismatches = (int)(0.1*len(read1))
 
@@ -193,8 +194,8 @@ def hybridize(read1, read2, read1q, read2q,  ampliconData, cushion):
                 if (loosematchq(read1rev[offset+i:], read2, read1qrev[offset+i:],read2q)):
                     return "0:1"
             return "1:1"
-            
-                
+    
+    # Primers are correct but no hyb - could indicate something big enough to destroy the overlap. Should this be tracked?        
     print "Hyb FAILURE"
     return "0:0"
 
@@ -224,7 +225,7 @@ def loosematchq(querystring, read, queryqscores ,readqscores):
                 mismatch=mismatch+1
     
     # calculate the number of acceptable mismatches
-    acceptablemismatch=0.1*(okbases+1)
+    acceptablemismatch=0.1*(okbases+1)  # do we need a minimum length of match here? 1bp overlap is not OK...
 
     if mismatch >= acceptablemismatch:
         return False
